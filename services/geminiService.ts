@@ -3,16 +3,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { IdentificationResult, GroundingSource } from "../types";
 
 export const identifyMedications = async (base64Image: string): Promise<{ data: IdentificationResult, sources: GroundingSource[] }> => {
-  // Vite의 define 설정을 통해 Netlify 환경 변수가 이 자리에 주입됩니다.
-  const apiKey = process.env.API_KEY;
+  // Always initialize with named parameter and process.env.API_KEY directly.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  if (!apiKey) {
-    throw new Error("API_KEY가 설정되지 않았습니다. Netlify 설정에서 API_KEY 환경 변수를 추가해주세요.");
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
-  
-  // 텍스트 분석 및 검색 접지에 최적화된 최신 모델 사용
+  // Basic Text/Vision Tasks with Search Grounding: 'gemini-3-flash-preview'
   const model = "gemini-3-flash-preview";
 
   const prompt = `사진 속의 모든 의약품(알약, 상자, 블리스터 등)을 식별해 주세요. 
@@ -70,9 +64,10 @@ Google 검색 기능을 사용하여 한국 의약품 시장의 최신 정보를
       }
     });
 
+    // Access .text property directly
     const result = JSON.parse(response.text || "{}") as IdentificationResult;
     
-    // 검색 결과(출처) 추출
+    // Extract website URLs from groundingChunks
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     const sources: GroundingSource[] = groundingChunks
       .filter((chunk: any) => chunk.web)
