@@ -1,0 +1,7 @@
+{
+  "name": "MediScan AI",
+  "description": "Scan multiple medications at once to identify their Korean names, ingredients, dosage, and pharmaceutical company information using Gemini 2.5.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
